@@ -12,6 +12,7 @@ import server.MapleItemInformationProvider;
  * @author Simon
  */
 public class DropEntry {
+
     private int version;
     private int item_id;
     private int monster_id;
@@ -25,6 +26,15 @@ public class DropEntry {
         mindrop = 1;
         maxdrop = 1;
         chance = calculateChance(item_id);
+        this.version = version;
+    }
+
+    public DropEntry(int item_id, int monster_id, int max, int min, int version) {
+        this.item_id = item_id;
+        this.monster_id = monster_id;
+        mindrop = max;
+        maxdrop = min;
+        chance = 400000;
         this.version = version;
     }
 
@@ -67,19 +77,21 @@ public class DropEntry {
                     case 50: // antidotes and stuff
                         return 3000;
                     case 290: // mastery books
-                        if(boss)
+                        if (boss) {
                             return 40000;
-                        else
+                        } else {
                             return 1000;
+                        }
                     case 40: // Scrolls
                     case 41: // Scrolls
                     case 43: // Scrolls
                     case 44: // Scrolls
                     case 48: // pet scrolls
-                        if(boss)
+                        if (boss) {
                             return 10000;
-                        else
+                        } else {
                             return 750;
+                        }
                     case 100: // summon bags
                     case 101: // summon bags
                     case 102: // summon bags
@@ -104,10 +116,11 @@ public class DropEntry {
                     case 70: // throwing stars
                     case 210: // rare monster piece drops
                     case 330: // bullets
-                        if(boss)
+                        if (boss) {
                             return 2500;
-                        else
+                        } else {
                             return 400;
+                        }
                     case 60: // bow arrows
                     case 61: // crossbow arrows
                         mindrop = 10;
@@ -116,10 +129,11 @@ public class DropEntry {
                     case 213: // boss transfrom
                         return 100000;
                     case 280: // skill books
-                        if(boss)
+                        if (boss) {
                             return 20000;
-                        else
+                        } else {
                             return 1000;
+                        }
                     case 381: // monster book things
                     case 382:
                     case 383:

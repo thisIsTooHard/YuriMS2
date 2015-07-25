@@ -4220,9 +4220,9 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
                 this.expRate = worldz.getExpRate();
             }
         }
-        this.expRate += (client.hasVotedAlready() ? 1 : 0);
-        this.mesoRate += getGuild() != null ? 1 : 0;
-        this.dropRate += level / 100;
+        //this.expRate += (client.hasVotedAlready() ? 1 : 0);
+        //this.mesoRate += 1;//getGuild() != null ? 1 : 0;
+        //this.dropRate += level / 100;
     }
 
     public void setEnergyBar(int set) {

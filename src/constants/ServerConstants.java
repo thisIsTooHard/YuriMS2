@@ -6,7 +6,7 @@ import java.util.Properties;
 public class ServerConstants {
 
     public static short VERSION = 83;
-    public static String PATCH = "3";
+    public static String PATCH = "1";
     public static String[] WORLD_NAMES = {"Scania", "Bera", "Broa", "Windia", "Khaini", "Bellocan", "Mardia", "Kradia", "Yellonde", "Demethos", "Galicia", "El Nido", "Zenith", "Arcenia", "Kastia", "Judis", "Plana", "Kalluna", "Stius", "Croa", "Medere"};
     ;
 	// Login Configuration
@@ -31,14 +31,15 @@ public class ServerConstants {
     public static final boolean USE_ITEM_SORT = false;
     public static final boolean USE_PARTY_SEARCH = false;
     //Rates
-    public static final int EXP_RATE = 4;
-    public static final int MESO_RATE = 2;
-    public static final int DROP_RATE = 2;
-    public static final int BOSS_DROP_RATE = 2;
+    //public static final int EXP_RATE = 4;
+    //public static final int MESO_RATE = 2;
+    //public static final int DROP_RATE = 2;
+    //public static final int BOSS_DROP_RATE = 2;
     public static final int PARTY_EXPERIENCE_MOD = 1; // change for event stuff
-	public static final double PQ_BONUS_EXP_MOD = 0.5;
-	
-	public static final long EVENT_END_TIMESTAMP = 1428897600000L;
+    public static final double PQ_BONUS_EXP_MOD = 0.5;
+
+    public static final long EVENT_END_TIMESTAMP = 1428897600000L;
+
     static {
         Properties p = new Properties();
         try {

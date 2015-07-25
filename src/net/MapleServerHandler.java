@@ -126,6 +126,7 @@ public class MapleServerHandler extends IoHandlerAdapter {
         byte[] content = (byte[]) message;
         SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(new ByteArrayByteStream(content));
         short packetId = slea.readShort();
+        System.out.println("Packet ID :" + packetId);
         MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
         final MaplePacketHandler packetHandler = processor.getHandler(packetId);
         if (packetHandler != null && packetHandler.validateState(client)) {

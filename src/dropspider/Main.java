@@ -88,7 +88,7 @@ public class Main {
 
     private static void parseMonsterSection(String html_data) {
         String monster_name = getStringBetween(html_data, "alt=\"", "\" title=");
-        System.out.println(monster_name);
+        //System.out.println(monster_name);
         //  System.out.println(html_data);
         //parse etc drop
         parseItemSection(getStringBetween(html_data, "Etc. drop:</strong>", "</td>"), monster_name);
@@ -99,6 +99,9 @@ public class Main {
         //parse ore drop
         parseItemSection(getStringBetween(html_data, "Ore drop:</strong>", "</td>"), monster_name);
 
+        //parse Mesos drop
+        parseMesoSection(getStringBetween(html_data, "Mesos:</strong>", "</td>"), monster_name);
+
         //parse equips
         parseItemSection(getStringBetween(html_data, "Common equipment:</strong>", "</div>"), monster_name);
         parseItemSection(getStringBetween(html_data, "Warrior equipment:</strong>", "</div>"), monster_name);
@@ -108,6 +111,33 @@ public class Main {
         parseItemSection(getStringBetween(html_data, "Pirate equipment:</strong>", "</div>"), monster_name);
 
         //System.out.println(monster_name);
+    }
+
+    private static void parseMesoSection(String html_data, String monster_name) {
+        String temp_data = html_data;
+        ArrayList<Integer> monster_ids = DataTool.monsterIdsFromName(monster_name);;
+        if (monster_ids.isEmpty())
+            return;
+        
+        if (html_data.indexOf("?") == -1 && html_data.indexOf("-") > -1) {
+            System.out.println(monster_name);
+            int max = 0, min = 0;
+            String a, b;
+            a = html_data.substring(html_data.indexOf("-") - 1, html_data.indexOf("-"));
+            b = html_data.substring(html_data.indexOf("-") + 1, html_data.indexOf("-") + 2);
+            if (isDigi(a) && isDigi(b)) {
+                drop_entries.add(new DropEntry(0, monster_ids.get(0), Integer.parseInt(b), Integer.parseInt(a), VERSION));
+            }
+        }
+    }
+
+    public static boolean isDigi(String s) {
+        try {
+            int a = Integer.parseInt(s);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private static void parseItemSection(String html_data, String monster_name) {
@@ -128,67 +158,74 @@ public class Main {
             item_name = item_name.replaceAll("\\(50%\\)", "").trim();
             item_name = item_name.replaceAll("\\(70%\\)", "").trim();
             item_name = item_name.replaceAll("\\'s", "").trim();
-            
-            
+
             monster_name = monster_name.replaceAll("Horntail\\'s Head B", "Horntail");
             // Process scrolls, neoxon doesn't have the % on most of the scrolls. So we need to remove it
             // Unfortunately they do for some, so we have to handle that too.
             boolean scroll = false;
             int scrollType = 0;
-            
-            if(item_name.contains("100%")) {
+
+            if (item_name.contains("100%")) {
                 scroll = true;
                 item_name = item_name.replaceAll("100%", "").trim();
                 item_name = item_name.replaceAll("\\(\\)", "").trim(); // Hidden Street has a few scroll %'s with ()s around them.. sigh
-            } else if(item_name.contains("60%")) {
+            } else if (item_name.contains("60%")) {
                 scroll = true;
                 scrollType = 1;
                 item_name = item_name.replaceAll("60%", "").trim();
                 item_name = item_name.replaceAll("\\(\\)", "").trim();
-            } else if(item_name.contains("10%")) {
+            } else if (item_name.contains("10%")) {
                 scroll = true;
                 scrollType = 2;
                 item_name = item_name.replaceAll("10%", "").trim();
                 item_name = item_name.replaceAll("\\(\\)", "").trim();
                 //f(item_name.contains(" ()")) item_name = item_name.substring(0, item_name.lastIndexOf(" ("));
-            } else if(item_name.contains("70%")) {
+            } else if (item_name.contains("70%")) {
                 scroll = true;
                 scrollType = 4;
                 item_name = item_name.replaceAll("70%", "").trim();
                 item_name = item_name.replaceAll("\\(\\)", "").trim();
-            } else if(item_name.contains("30%")) {
+            } else if (item_name.contains("30%")) {
                 scroll = true;
                 scrollType = 5;
                 item_name = item_name.replaceAll("30%", "").trim();
                 item_name = item_name.replaceAll("\\(\\)", "").trim();
             }
-                
-            
-//            System.out.println("Item name: " + item_name);
 
+//            System.out.println("Item name: " + item_name);
             //drop entry
             ArrayList<Integer> monster_ids = DataTool.monsterIdsFromName(monster_name);
             ArrayList<Integer> item_ids = DataTool.itemIdsFromName(item_name);
-            
-            if(scroll && item_ids.isEmpty()) {
+
+            if (scroll && item_ids.isEmpty()) {
                 // Try adding on the % again. Thanks nexon...
-                if(scrollType == 0) item_name += " 100%";
-                if(scrollType == 1) item_name += " 60%";
-                if(scrollType == 2) item_name += " 10%";
-                if(scrollType == 4) item_name += " 70%";
-                if(scrollType == 5) item_name += " 30%";
-                
+                if (scrollType == 0) {
+                    item_name += " 100%";
+                }
+                if (scrollType == 1) {
+                    item_name += " 60%";
+                }
+                if (scrollType == 2) {
+                    item_name += " 10%";
+                }
+                if (scrollType == 4) {
+                    item_name += " 70%";
+                }
+                if (scrollType == 5) {
+                    item_name += " 30%";
+                }
+
                 item_ids = DataTool.itemIdsFromName(item_name);
             }
 
             if (!monster_ids.isEmpty() && !item_ids.isEmpty()) {
                 int item_id = item_ids.get(0);
-                if(scroll) {
+                if (scroll) {
                     item_id += scrollType;
                 }
                 int item_id_2 = -1;
                 for (Integer mob_id : monster_ids) {
-                    System.out.println("Monster ID: " + mob_id + ", Item ID: " + item_id);
+                    //System.out.println("Monster ID: " + mob_id + ", Item ID: " + item_id);
                     drop_entries.add(new DropEntry(item_id, mob_id, VERSION));
                     if (gender_equip && item_ids.size() > 1) {
                         item_id_2 = item_ids.get(1);
