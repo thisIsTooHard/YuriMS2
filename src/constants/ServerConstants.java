@@ -16,6 +16,7 @@ public class ServerConstants {
     //Event Configuration
     public static final boolean PERFECT_PITCH = false;
     // IP Configuration
+    public static boolean AUTOIP;
     public static String HOST;
     //Database Configuration
     public static String DB_URL = "";
@@ -28,7 +29,7 @@ public class ServerConstants {
     public static final boolean USE_MTS = false;
     public static final boolean USE_FAMILY_SYSTEM = false;
     public static final boolean USE_DUEY = false;
-    public static final boolean USE_ITEM_SORT = false;
+    public static final boolean USE_ITEM_SORT = true;
     public static final boolean USE_PARTY_SEARCH = false;
     //Rates
     //public static final int EXP_RATE = 4;
@@ -43,10 +44,20 @@ public class ServerConstants {
     static {
         Properties p = new Properties();
         try {
-            p.load(new FileInputStream("configuration.ini"));
+            p.load(new FileInputStream("config.ini"));
 
-            //SERVER
-            ServerConstants.HOST = p.getProperty("HOST");
+            //autoip
+            ServerConstants.AUTOIP = p.getProperty("AUTOIP").equalsIgnoreCase("TRUE");;
+
+            if (ServerConstants.AUTOIP) {
+                //SERVER
+                ServerConstants.HOST = AutoIP.getLocalIP();
+
+            } else {
+                //SERVER
+                ServerConstants.HOST = p.getProperty("HOST");
+
+            }
 
             //SQL DATABASE
             ServerConstants.DB_URL = p.getProperty("URL");

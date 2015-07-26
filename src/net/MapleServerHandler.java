@@ -1,23 +1,23 @@
 /*
-This file is part of the OdinMS Maple Story Server
-Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
-Matthias Butz <matze@odinms.de>
-Jan Christian Meyer <vimes@odinms.de>
+ This file is part of the OdinMS Maple Story Server
+ Copyright (C) 2008 Patrick Huy <patrick.huy@frz.cc>
+ Matthias Butz <matze@odinms.de>
+ Jan Christian Meyer <vimes@odinms.de>
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as
-published by the Free Software Foundation version 3 as published by
-the Free Software Foundation. You may not use, modify or distribute
-this program under any other version of the GNU Affero General Public
-License.
+ This program is free software: you can redistribute it and/or modify
+ it under the terms of the GNU Affero General Public License as
+ published by the Free Software Foundation version 3 as published by
+ the Free Software Foundation. You may not use, modify or distribute
+ this program under any other version of the GNU Affero General Public
+ License.
 
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ GNU Affero General Public License for more details.
 
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ You should have received a copy of the GNU Affero General Public License
+ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 package net;
 
@@ -47,7 +47,7 @@ public class MapleServerHandler extends IoHandlerAdapter {
     private PacketProcessor processor;
     private int world = -1, channel = -1;
     private static final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
-    
+
     public MapleServerHandler() {
         this.processor = PacketProcessor.getProcessor(-1, -1);
     }
@@ -60,7 +60,7 @@ public class MapleServerHandler extends IoHandlerAdapter {
 
     @Override
     public void exceptionCaught(IoSession session, Throwable cause) throws Exception {
-    	if (cause instanceof IOException || cause instanceof ClassCastException) {
+        if (cause instanceof IOException || cause instanceof ClassCastException) {
             return;
         }
         MapleClient mc = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
@@ -107,14 +107,14 @@ public class MapleServerHandler extends IoHandlerAdapter {
             try {
                 boolean inCashShop = false;
                 if (client.getPlayer() != null) {
-                    inCashShop = client.getPlayer().getCashShop().isOpened();                  
+                    inCashShop = client.getPlayer().getCashShop().isOpened();
                 }
                 client.disconnect(false, inCashShop);
             } catch (Throwable t) {
                 FilePrinter.printError(FilePrinter.ACCOUNT_STUCK, t);
             } finally {
                 session.close();
-                session.removeAttribute(MapleClient.CLIENT_KEY);      
+                session.removeAttribute(MapleClient.CLIENT_KEY);
                 //client.empty();
             }
         }
@@ -126,12 +126,12 @@ public class MapleServerHandler extends IoHandlerAdapter {
         byte[] content = (byte[]) message;
         SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(new ByteArrayByteStream(content));
         short packetId = slea.readShort();
-        System.out.println("Packet ID :" + packetId);
+        PacketPrintln(packetId, 1);
         MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
         final MaplePacketHandler packetHandler = processor.getHandler(packetId);
         if (packetHandler != null && packetHandler.validateState(client)) {
             try {
-            	MapleLogger.logRecv(client, packetId, message);
+                MapleLogger.logRecv(client, packetId, message);
                 packetHandler.handlePacket(slea, client);
             } catch (final Throwable t) {
                 FilePrinter.printError(FilePrinter.PACKET_HANDLER + packetHandler.getClass().getName() + ".txt", t, "Error for " + (client.getPlayer() == null ? "" : "player ; " + client.getPlayer() + " on map ; " + client.getPlayer().getMapId() + " - ") + "account ; " + client.getAccountName() + "\r\n" + slea.toString());
@@ -139,14 +139,19 @@ public class MapleServerHandler extends IoHandlerAdapter {
             }
         }
     }
-    
+
     @Override
     public void messageSent(IoSession session, Object message) {
-    	byte[] content = (byte[]) message;
-    	SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(new ByteArrayByteStream(content));
-    	slea.readShort(); //packetId
+        byte[] content = (byte[]) message;
+        SeekableLittleEndianAccessor slea = new GenericSeekableLittleEndianAccessor(new ByteArrayByteStream(content));
+        slea.readShort(); //packetId
+        try {
+            short packetId = slea.readShort();
+            PacketPrintln(packetId, 2);
+        } catch (Exception e) {
+        }
     }
-    
+
     @Override
     public void sessionIdle(final IoSession session, final IdleStatus status) throws Exception {
         MapleClient client = (MapleClient) session.getAttribute(MapleClient.CLIENT_KEY);
@@ -154,5 +159,29 @@ public class MapleServerHandler extends IoHandlerAdapter {
             client.sendPing();
         }
         super.sessionIdle(session, status);
+    }
+    
+    
+        public static void PacketPrintln(int id, int type) {
+            Integer r[] = {197,167,41,46,91,188};
+            Integer s[] = {125,140,129,101,102,103,104,108,110,116,118,119,117,111,112,114,115,120,121,122,123,124,126,127,128,130,132,133,134,135,136,13};
+        String hex = (Integer.toHexString(id).length() > 1) ? Integer.toHexString(id).toUpperCase() : "0" + Integer.toHexString(id).toUpperCase();
+        if (type == 1) {
+            if (java.util.Arrays.asList(r).indexOf(id) > -1)
+                return;
+            //System.out.println("Received Packet ID： 0x"+ Integer.toHexString(id));
+            //System.out.println("Received Packet ID：" + id + "   Hex ID：0x" + hex);
+        }
+
+        
+        
+        if (type == 2) { //2
+            if (java.util.Arrays.asList(s).indexOf(id) > -1)
+                return;
+
+            //System.out.println("Sent Packet ID： 0x"+ Integer.toHexString(id));
+            System.out.println("Sent Packet ID：" + id + "   Hex ID：0x" + hex);
+        }
+        return;
     }
 }
