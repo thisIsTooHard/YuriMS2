@@ -333,7 +333,26 @@ public class Commands {
 			player.message("@whodrops <item name>: Displays monsters that drop an item given an item name.");
 			player.message("@uptime: Shows how long Solaxia has been online.");
 			player.message("@bosshp: Displays the remaining HP of the bosses on your map.");
+                        player.message("@mapid: Show this map ID.");
 			break;
+		case "mapid":
+			player.message("This Map ID: " + c.getPlayer().getMapId());
+			break;
+                        case "item":
+            int itemId = Integer.parseInt(sub[1]);
+            short quantity = 1;
+            try {
+                quantity = Short.parseShort(sub[2]);
+            } catch (Exception e) {
+            }
+            if (sub[0].equals("item")) {
+                int petid = -1;
+                if (ItemConstants.isPet(itemId)) {
+                    petid = MaplePet.createPet(itemId);
+                }
+                MapleInventoryManipulator.addById(c, itemId, quantity, c.getPlayer().getName(), petid, -1);
+            }
+                    break;
 		case "time":
 			DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 			dateFormat.setTimeZone(TimeZone.getTimeZone("EST"));
@@ -481,9 +500,9 @@ public class Commands {
 
 			player.yellowMessage("EXP RATE");
 			player.message(">>Base Server EXP Rate: " + c.getWorldServer().getExpRate() + "x");
-			//if(c.getWorldServer().getExpRate() > ServerConstants.EXP_RATE) {
-			//	player.message(">>Event EXP bonus: " + (c.getWorldServer().getExpRate() - ServerConstants.EXP_RATE) + "x");
-			//}
+			if(c.getWorldServer().getExpRate() > c.getWorldServer().getExpRateOrg()) {
+				player.message(">>Event EXP bonus: " + (c.getWorldServer().getExpRate() - c.getWorldServer().getExpRateOrg()) + "x");
+			}
 			player.message(">>Voted EXP bonus: " + (c.hasVotedAlready() ? "1x" : "0x (If you vote now, you will earn an additional 1x EXP!)"));
 			player.message(">>Total EXP Rate: " + player.getExpRate() + "x");
 			

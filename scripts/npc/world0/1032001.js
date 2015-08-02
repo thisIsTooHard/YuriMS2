@@ -27,7 +27,7 @@
 */
 
 status = -1;
-actionx = {"1stJob" : false, "2ndjob" : false, "3thJobI" : false, "3thJobC" : false};
+actionx = {"1stJob" : true, "2ndjob" : true, "3thJobI" : true, "3thJobC" : true};
 job = 210;
 
 function start() {

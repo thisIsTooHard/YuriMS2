@@ -85,6 +85,7 @@ public class NxcodeCreate {
                 cash = Integer.parseInt(s);
                 code = creat_Code();
                 if (upload_data(code, type, cash)) {
+                    System.out.println();
                     System.out.println(code + "　　CASH：" + cash);
                     i++;
                 }
@@ -95,7 +96,7 @@ public class NxcodeCreate {
     public static boolean upload_data(String code, int type, int item) {
         try {
             Connection con = DatabaseConnection.getConnection();
-            PreparedStatement ps = con.prepareStatement("INSERT INTO nxcode (code,valid, type, item) VALUES (?,0,?,?)");
+            PreparedStatement ps = con.prepareStatement("INSERT INTO nxcode (code,valid, type, item) VALUES (?,1,?,?)");
             ps.setString(1, code);
             ps.setInt(2, type);
             ps.setInt(3, item);
@@ -170,6 +171,7 @@ public class NxcodeCreate {
         String code;
 
         while (i <= n) {
+            System.out.println();
             System.out.println("Serial Number " + i + " Item ID ?");
             s = scn.next();
             if (isDigi(s)) {

@@ -1,6 +1,7 @@
 package constants;
 
 import client.MapleJob;
+import client.inventory.MapleInventoryType;
 import constants.skills.Aran;
 
 /*
@@ -96,4 +97,12 @@ public class GameConstants {
                 return false;
         }
     }
+        
+        	public static final MapleInventoryType getInventoryType(final int itemId) {
+		final byte type = (byte) (itemId / 1000000);
+		if (type < 1 || type > 5) {
+			return MapleInventoryType.UNDEFINED;
+		}
+		return MapleInventoryType.getByType(type);
+	}
 }

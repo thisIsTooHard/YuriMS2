@@ -164,13 +164,13 @@ public class MapleServerHandler extends IoHandlerAdapter {
     
         public static void PacketPrintln(int id, int type) {
             Integer r[] = {197,167,41,46,91,188};
-            Integer s[] = {125,140,129,101,102,103,104,108,110,116,118,119,117,111,112,114,115,120,121,122,123,124,126,127,128,130,132,133,134,135,136,13};
+            Integer s[] = {105,106,107,109,113,125,140,129,101,102,103,104,108,110,116,118,119,117,111,112,114,115,120,121,122,123,124,126,127,128,130,132,133,134,135,136};
         String hex = (Integer.toHexString(id).length() > 1) ? Integer.toHexString(id).toUpperCase() : "0" + Integer.toHexString(id).toUpperCase();
         if (type == 1) {
             if (java.util.Arrays.asList(r).indexOf(id) > -1)
                 return;
             //System.out.println("Received Packet ID： 0x"+ Integer.toHexString(id));
-            //System.out.println("Received Packet ID：" + id + "   Hex ID：0x" + hex);
+            System.out.println("Received Packet ID：" + id + "   Hex ID：0x" + hex);
         }
 
         

@@ -48,3 +48,8 @@ wz/*.wz/
 
 # Netbeans
 build/
+
+# LOGS
+/logs/
+saveChar.txt
+sessions.txt

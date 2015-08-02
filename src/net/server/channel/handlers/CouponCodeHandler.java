@@ -88,8 +88,9 @@ public final class CouponCodeHandler extends AbstractMaplePacketHandler {
             }
             c.announce(MaplePacketCreator.showCash(c.getPlayer()));
         } else {
-            c.getPlayer().getCashShop().gainCash(1, 0);
             c.getPlayer().dropMessage(1, "Your code is used, Please try other code.");
+            c.getPlayer().getCashShop().gainCash(1, 0);
+            c.announce(MaplePacketCreator.showCash(c.getPlayer()));
             //c.announce(MaplePacketCreator.wrongCouponCode());
         }
         c.announce(MaplePacketCreator.enableCSUse());

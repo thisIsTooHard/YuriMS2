@@ -35,41 +35,53 @@ public final class ItemSortHandler extends AbstractMaplePacketHandler {
 
     @Override
     public final void handlePacket(SeekableLittleEndianAccessor slea, MapleClient c) {
-    	MapleCharacter chr = c.getPlayer();
-		chr.getAutobanManager().setTimestamp(2, slea.readInt(), 3);
-		MapleInventoryType inventoryType = MapleInventoryType.getByType(slea.readByte());
-		if (inventoryType.equals(MapleInventoryType.UNDEFINED) || c.getPlayer().getInventory(inventoryType).isFull()) {
-		    c.getSession().write(MaplePacketCreator.enableActions());
-		    return;
-		}
-		if(!chr.isGM() || !ServerConstants.USE_ITEM_SORT) {
-			c.announce(MaplePacketCreator.enableActions());
-			return;
-		}
-		
-		MapleInventory inventory = c.getPlayer().getInventory(inventoryType);
-		boolean sorted = false;
-		
-		while (!sorted) {
-			short freeSlot = inventory.getNextFreeSlot();
-		    if (freeSlot != -1) {
-		        short itemSlot = -1;
-		        for (short i = (short) (freeSlot + 1); i <= inventory.getSlotLimit(); i = (short) (i + 1)) {
-		            if (inventory.getItem(i) != null) {
-		                itemSlot = i;
-		                break;
-		            }
-		        }
-		        if (itemSlot > 0) {
-		            MapleInventoryManipulator.move(c, inventoryType,  itemSlot, freeSlot);
-		        } else {
-		            sorted = true;
-		        }
-		    } else {
-		        sorted = true;
-		    }
-		}
-		c.getSession().write(MaplePacketCreator.finishedSort(inventoryType.getType()));
-		c.getSession().write(MaplePacketCreator.enableActions());
+        MapleCharacter chr = c.getPlayer();
+        chr.getAutobanManager().setTimestamp(2, slea.readInt(), 3);
+        MapleInventoryType inventoryType = MapleInventoryType.getByType(slea.readByte());
+
+        System.out.println("part 1");
+
+        if (inventoryType.equals(MapleInventoryType.UNDEFINED) || c.getPlayer().getInventory(inventoryType).isFull()) {
+            c.getSession().write(MaplePacketCreator.enableActions());
+            return;
+        }
+
+        System.out.println("part 2");
+        System.out.println(!chr.isGM());
+        System.out.println(!ServerConstants.USE_ITEM_SORT);
+        if (!ServerConstants.USE_ITEM_SORT) { // org (!chr.isGM() || !ServerConstants.USE_ITEM_SORT)
+            c.announce(MaplePacketCreator.enableActions());
+            return;
+        }
+
+        System.out.println("part 3");
+
+        MapleInventory inventory = c.getPlayer().getInventory(inventoryType);
+        boolean sorted = false;
+
+        while (!sorted) {
+            short freeSlot = inventory.getNextFreeSlot();
+            if (freeSlot != -1) {
+                short itemSlot = -1;
+                for (short i = (short) (freeSlot + 1); i <= inventory.getSlotLimit(); i = (short) (i + 1)) {
+                    if (inventory.getItem(i) != null) {
+                        itemSlot = i;
+                        break;
+                    }
+                }
+                if (itemSlot > 0) {
+                    MapleInventoryManipulator.move(c, inventoryType, itemSlot, freeSlot);
+                } else {
+                    sorted = true;
+                }
+            } else {
+                sorted = true;
+            }
+        }
+
+        System.out.println("part 4");
+
+        c.getSession().write(MaplePacketCreator.finishedSort(inventoryType.getType()));
+        c.getSession().write(MaplePacketCreator.enableActions());
     }
 }

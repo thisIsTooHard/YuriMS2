@@ -3,9 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
-            <file>file:/C:/Users/Administrator/Documents/NetBeansProjects/YuriMS2/src/net/MapleServerHandler.java</file>
-            <file>file:/C:/Users/Administrator/Documents/NetBeansProjects/YuriMS2/src/net/PacketProcessor.java</file>
-            <file>file:/C:/Users/Administrator/Documents/NetBeansProjects/YuriMS2/src/net/RecvOpcode.java</file>
+            <file>file:/C:/Users/Administrator/Documents/NetBeansProjects/YuriMS2/src/tools/QuestDropCreator.java</file>
+            <file>file:/C:/Users/Administrator/Documents/NetBeansProjects/YuriMS2/src/client/command/Commands.java</file>
+            <file>file:/C:/Users/Administrator/Documents/NetBeansProjects/YuriMS2/src/scripting/npc/NPCScriptManager.java</file>
+            <file>file:/C:/Users/Administrator/Documents/NetBeansProjects/YuriMS2/src/tools/NxcodeCreate.java</file>
+            <file>file:/C:/Users/Administrator/Documents/NetBeansProjects/YuriMS2/src/net/server/world/World.java</file>
+            <file>file:/C:/Users/Administrator/Documents/NetBeansProjects/YuriMS2/src/scripting/npc/NPCConversationManager.java</file>
+            <file>file:/C:/Users/Administrator/Documents/NetBeansProjects/YuriMS2/src/client/MapleCharacter.java</file>
+            <file>file:/C:/Users/Administrator/Documents/NetBeansProjects/YuriMS2/src/net/server/Server.java</file>
         </group>
     </open-files>
 </project-private>

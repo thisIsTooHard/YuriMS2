@@ -54,7 +54,7 @@ import tools.MaplePacketCreator;
  */
 public class World {
 
-    private int id, flag, exprate, droprate, mesorate, bossdroprate;
+    private int id, flag, exprate, droprate, mesorate, bossdroprate,exprateorg;
     private String eventmsg;
     private List<Channel> channels = new ArrayList<>();
     private Map<Integer, MapleParty> parties = new HashMap<>();
@@ -73,6 +73,7 @@ public class World {
         this.droprate = droprate;
         this.mesorate = mesorate;
         this.bossdroprate = bossdroprate;
+        this.exprateorg = exprate;
         runningPartyId.set(1);
         runningMessengerId.set(1);
     }
@@ -109,6 +110,10 @@ public class World {
         return exprate;
     }
 
+        public int getExpRateOrg() {
+        return exprateorg;
+    }
+    
     public void setExpRate(int exp) {
     	System.out.println("Setting server EXP Rate to " + exp + "x.");
         this.exprate = exp;

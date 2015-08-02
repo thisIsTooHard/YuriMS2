@@ -49,7 +49,7 @@ public class NPCScriptManager extends AbstractScriptManager {
     public synchronized static NPCScriptManager getInstance() {
         return instance;
     }
-
+    
     public void start(MapleClient c, int npc, MapleCharacter chr) {
         start(c, npc, null, chr);
     }
@@ -73,8 +73,9 @@ public class NPCScriptManager extends AbstractScriptManager {
                     FilePrinter.printError(FilePrinter.NPC_UNCODED, "NPC " + MapleLifeFactory.getNPC(npc).getName() + "(" + npc + ") is not coded.\r\n");
                 }
                 if (iv == null || NPCScriptManager.getInstance() == null) {
-                    dispose(c);
-                    return;
+                    iv = getInvocable("npc/world" + c.getWorld() + "/nocodednpc.js", c);
+                    //dispose(c);
+                    //return;
                 }
                 engine.put("cm", cm);
                 scripts.put(c, iv);

@@ -47,7 +47,7 @@ public class ServerConstants {
             p.load(new FileInputStream("config.ini"));
 
             //autoip
-            ServerConstants.AUTOIP = p.getProperty("AUTOIP").equalsIgnoreCase("TRUE");;
+            ServerConstants.AUTOIP = p.getProperty("AUTOIP").equalsIgnoreCase("true");;
 
             if (ServerConstants.AUTOIP) {
                 //SERVER
@@ -65,11 +65,11 @@ public class ServerConstants {
             ServerConstants.DB_PASS = p.getProperty("DB_PASS");
 
             //OTHER
-            ServerConstants.JAVA_8 = p.getProperty("JAVA8").equalsIgnoreCase("TRUE");
+            ServerConstants.JAVA_8 = p.getProperty("JAVA8").equalsIgnoreCase("true");
             ServerConstants.SHUTDOWNHOOK = p.getProperty("SHUTDOWNHOOK").equalsIgnoreCase("true");
 
         } catch (Exception e) {
-            System.out.println("Failed to load configuration.ini.");
+            System.out.println("Failed to load config.ini.");
             System.exit(0);
         }
     }
