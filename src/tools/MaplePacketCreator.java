@@ -105,6 +105,7 @@ import constants.ServerConstants;
 import constants.skills.Buccaneer;
 import constants.skills.Corsair;
 import constants.skills.ThunderBreaker;
+import java.util.Set;
 
 /**
  *
@@ -157,23 +158,20 @@ public class MaplePacketCreator {
         mplew.writeShort(chr.getMp()); // mp (?)
         mplew.writeShort(chr.getMaxMp()); // maxmp
         mplew.writeShort(chr.getRemainingAp()); // remaining ap
-        if (GameConstants.hasSPTable(chr.getJob())) {
-            mplew.write(chr.getRemainingSpSize());
-            for (int i = 0; i < chr.getRemainingSps().length; i++) {
-                if (chr.getRemainingSpBySkill(i) > 0) {
-                    mplew.write(i + 1);
-                    mplew.write(chr.getRemainingSpBySkill(i));
-                }
-            }
+        
+        if (GameConstants.isEvan(chr.getJob().getId()) || GameConstants.isResist(chr.getJob().getId())) {
+            mplew.write(0);
         } else {
-            mplew.writeShort(chr.getRemainingSp()); // remaining sp
+            mplew.writeShort(0); // remaining sp
         }
+        
         mplew.writeInt(chr.getExp()); // current exp
         mplew.writeShort(chr.getFame()); // fame
         mplew.writeInt(chr.getGachaExp()); //Gacha Exp
         mplew.writeInt(chr.getMapId()); // current map id
         mplew.write(chr.getInitialSpawnpoint()); // spawnpoint
         mplew.writeInt(0);
+        mplew.writeShort(chr.getSubcategory()); //1 here = db
     }
 
     private static void addCharLook(final MaplePacketLittleEndianWriter mplew, MapleCharacter chr, boolean mega) {
@@ -201,13 +199,15 @@ public class MaplePacketCreator {
         mplew.writeInt(chr.getMeso());
         addInventoryInfo(mplew, chr);
         addSkillInfo(mplew, chr);
+        addCoolDownInfo(mplew, chr);
         addQuestInfo(mplew, chr);
-        addMiniGameInfo(mplew, chr);
+        //addMiniGameInfo(mplew, chr);
         addRingInfo(mplew, chr);
         addTeleportInfo(mplew, chr);
         addMonsterBookInfo(mplew, chr);
         addNewYearInfo(mplew, chr);//have fun!
-        addAreaInfo(mplew, chr);//assuming it stayed here xd
+        mplew.writeShort(0); //addAreaInfo(mplew, chr);//assuming it stayed here xd
+        mplew.writeShort(0);
         mplew.writeShort(0);
     }
 
@@ -306,14 +306,12 @@ public class MaplePacketCreator {
     private static void addCharEntry(final MaplePacketLittleEndianWriter mplew, MapleCharacter chr, boolean viewall) {
         addCharStats(mplew, chr);
         addCharLook(mplew, chr, false);
-        if (!viewall) {
-            mplew.write(0);
-        }
-        if (chr.isGM()) {
-            mplew.write(0);
-            return;
-        }
+        //if (!viewall) {
+        //    mplew.write(0);
+        //}
+        
         mplew.write(1); // world rank enabled (next 4 ints are not sent if disabled) Short??
+        mplew.write(chr.isGM() ? 1:0);
         mplew.writeInt(chr.getRank()); // world rank
         mplew.writeInt(chr.getRankMove()); // move (negative is downwards)
         mplew.writeInt(chr.getJobRank()); // job rank
@@ -504,6 +502,9 @@ public class MaplePacketCreator {
                 mplew.writeInt(skill.getValue().masterlevel);
             }
         }
+    }
+
+    public static final void addCoolDownInfo(final MaplePacketLittleEndianWriter mplew, final MapleCharacter chr) {
         mplew.writeShort(chr.getAllCooldowns().size());
         for (PlayerCoolDownValueHolder cooling : chr.getAllCooldowns()) {
             mplew.writeInt(cooling.skillId);
@@ -588,9 +589,8 @@ public class MaplePacketCreator {
     public static byte[] getLoginFailed(int reason) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(8);
         mplew.writeShort(SendOpcode.LOGIN_STATUS.getValue());
-        mplew.write(reason);
-        mplew.write(0);
-        mplew.writeInt(0);
+        mplew.writeInt(reason);
+        mplew.writeShort(0);
         return mplew.getPacket();
     }
 
@@ -638,11 +638,10 @@ public class MaplePacketCreator {
     public static byte[] getPermBan(byte reason) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.LOGIN_STATUS.getValue());
-        mplew.write(2); // Account is banned
-        mplew.write(0);
+        mplew.writeShort(2); // Account is banned
         mplew.writeInt(0);
-        mplew.write(0);
-        mplew.writeLong(getTime(-1));
+        mplew.writeShort(reason);
+        mplew.write(HexTool.getByteArrayFromHexString("01 01 01 01 00"));
 
         return mplew.getPacket();
     }
@@ -651,10 +650,9 @@ public class MaplePacketCreator {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(17);
         mplew.writeShort(SendOpcode.LOGIN_STATUS.getValue());
         mplew.write(2);
-        mplew.write(0);
-        mplew.writeInt(0);
+        mplew.write(HexTool.getByteArrayFromHexString("00 00 00 00 00"));
         mplew.write(reason);
-        mplew.writeLong(getTime(timestampTill)); // Tempban date is handled as a 64-bit long, number of 100NS intervals since 1/1/1601. Lulz.
+        mplew.writeLong(timestampTill); // Tempban date is handled as a 64-bit long, number of 100NS intervals since 1/1/1601. Lulz.
 
         return mplew.getPacket();
     }
@@ -666,7 +664,7 @@ public class MaplePacketCreator {
      * @param account The account name.
      * @return The PIN request packet.
      */
-    public static byte[] getAuthSuccess(MapleClient c) {
+    /*public static byte[] getAuthSuccess(MapleClient c) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.LOGIN_STATUS.getValue());
         mplew.writeInt(0);
@@ -681,11 +679,38 @@ public class MaplePacketCreator {
         //mplew.writeShort(toWrite > 0x80 ? 0x80 : toWrite); only in higher versions...
         mplew.writeMapleAsciiString(c.getAccountName());
         mplew.write(0);
+    
         mplew.write(0); //isquietbanned
         mplew.writeLong(0);//isquietban time
         mplew.writeLong(c.getSessionId()); //creation time
         mplew.writeInt(0);
         mplew.writeShort(2);//PIN
+
+        return mplew.getPacket();
+    }*/
+    
+        public static byte[] getAuthSuccess(MapleClient c) {
+        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+
+        mplew.writeShort(SendOpcode.LOGIN_STATUS.getValue());
+        mplew.write(0);
+        mplew.write(0);
+        mplew.writeInt(0);
+        mplew.writeInt(c.getAccID()); // Account ID
+        mplew.write(0); // Gender
+        mplew.writeBool(c.getGMLevel() > 0);
+        mplew.write(0);
+        mplew.write(0);
+        mplew.writeMapleAsciiString(c.getAccountName());
+        mplew.write(0);
+        
+        mplew.write(0); // IsQuietBanned-Byte, QuietBanTime-Long, CreationTime-Long
+        mplew.writeLong(0); // IsQuietBanned-Byte, QuietBanTime-Long, CreationTime-Long
+        mplew.writeLong(c.getSessionId()); // IsQuietBanned-Byte, QuietBanTime-Long, CreationTime-Long
+        mplew.writeInt(0); // Remove the "Select the world you want to play in" since it doesn't fit inside the loginscreen
+        mplew.write(2); // Disable PIN
+        mplew.write(0); // Enable PIC
+        mplew.writeLong(0); // IsQuietBanned-Byte, QuietBanTime-Long, CreationTime-Long
 
         return mplew.getPacket();
     }
@@ -745,6 +770,30 @@ public class MaplePacketCreator {
      * @param channelLoad Load of the channel - 1200 seems to be max.
      * @return The server info packet.
      */
+    /*public static byte[] getServerList(int serverId, String serverName, int flag, String eventmsg, List<Channel> channelLoad) {
+     final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+     mplew.writeShort(SendOpcode.SERVERLIST.getValue());
+     mplew.write(serverId);
+     mplew.writeMapleAsciiString(serverName);
+     mplew.write(flag);
+     mplew.writeMapleAsciiString(eventmsg);
+     mplew.write(100); // rate modifier, don't ask O.O!
+     mplew.write(0); // event xp * 2.6 O.O!
+     mplew.write(100); // rate modifier, don't ask O.O!
+     mplew.write(0); // drop rate * 2.6
+     mplew.write(0);
+     mplew.write(channelLoad.size());
+     for (Channel ch : channelLoad) {
+     mplew.writeMapleAsciiString(serverName + "-" + ch.getId());
+     mplew.writeInt((ch.getConnectedClients() * 1200) / ServerConstants.CHANNEL_LOAD);
+     mplew.write(1);
+     mplew.writeShort(ch.getId() - 1);
+     }
+     mplew.writeShort(0);
+     mplew.writePos(new Point(81, 0));
+     mplew.writeMapleAsciiString("");
+     return mplew.getPacket();
+     }*/
     public static byte[] getServerList(int serverId, String serverName, int flag, String eventmsg, List<Channel> channelLoad) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SERVERLIST.getValue());
@@ -752,19 +801,22 @@ public class MaplePacketCreator {
         mplew.writeMapleAsciiString(serverName);
         mplew.write(flag);
         mplew.writeMapleAsciiString(eventmsg);
-        mplew.write(100); // rate modifier, don't ask O.O!
-        mplew.write(0); // event xp * 2.6 O.O!
-        mplew.write(100); // rate modifier, don't ask O.O!
-        mplew.write(0); // drop rate * 2.6
+        mplew.writeShort(100); // rate modifier, don't ask O.O!
+        mplew.writeShort(100); // rate modifier, don't ask O.O!
         mplew.write(0);
+
         mplew.write(channelLoad.size());
+
         for (Channel ch : channelLoad) {
             mplew.writeMapleAsciiString(serverName + "-" + ch.getId());
             mplew.writeInt((ch.getConnectedClients() * 1200) / ServerConstants.CHANNEL_LOAD);
-            mplew.write(1);
+            mplew.write(serverId);
             mplew.writeShort(ch.getId() - 1);
         }
-        mplew.writeShort(0);
+
+        mplew.writeShort(1);
+        mplew.writePos(new Point(81, 0));
+        mplew.writeMapleAsciiString("a");
         return mplew.getPacket();
     }
 
@@ -846,6 +898,7 @@ public class MaplePacketCreator {
         mplew.write(0);
         List<MapleCharacter> chars = c.loadCharacters(serverId);
         mplew.write((byte) chars.size());
+        
         for (MapleCharacter chr : chars) {
             addCharEntry(mplew, chr, false);
         }
@@ -855,7 +908,11 @@ public class MaplePacketCreator {
             mplew.write(2);
         }
 
-        mplew.writeInt(c.getCharacterSlots());
+        mplew.writeLong(c.getCharacterSlots());
+        
+            final StringBuilder sb = new StringBuilder("Received data : ");
+				sb.append(HexTool.toString((byte[]) mplew.getPacket())).append("\nText : ").append(HexTool.toStringFromAscii((byte[]) mplew.getPacket()));
+				System.out.println(sb.toString());
         return mplew.getPacket();
     }
 
@@ -922,16 +979,23 @@ public class MaplePacketCreator {
     public static byte[] getCharInfo(MapleCharacter chr) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
         mplew.writeShort(SendOpcode.SET_FIELD.getValue());
-        mplew.writeInt(chr.getClient().getChannel() - 1);
-        mplew.write(1);
-        mplew.write(1);
-        mplew.writeShort(0);
+        addChannelInfo(mplew, chr, true);
         for (int i = 0; i < 3; i++) {
             mplew.writeInt(Randomizer.nextInt());
         }
         addCharacterInfo(mplew, chr);
         mplew.writeLong(getTime(System.currentTimeMillis()));
         return mplew.getPacket();
+    }
+
+    public static void addChannelInfo(final MaplePacketLittleEndianWriter pw, final MapleCharacter chr, final boolean connect) {
+        pw.writeShort(2);
+        pw.writeLong(1);
+        pw.writeLong(2);
+        pw.writeLong(chr.getClient().getChannel() - 1);
+        pw.write(1);
+        pw.writeBool(connect);
+        pw.writeShort(0);
     }
 
     /**
@@ -1099,7 +1163,7 @@ public class MaplePacketCreator {
      */
     public static byte[] spawnSummon(MapleSummon summon, boolean animated) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(25);
-        mplew.writeShort(SendOpcode.SPAWN_SPECIAL_MAPOBJECT.getValue());
+        mplew.writeShort(SendOpcode.SUMMON_SPAWN.getValue());
         mplew.writeInt(summon.getOwner().getId());
         mplew.writeInt(summon.getObjectId());
         mplew.writeInt(summon.getSkill());
@@ -1122,7 +1186,7 @@ public class MaplePacketCreator {
      */
     public static byte[] removeSummon(MapleSummon summon, boolean animated) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(11);
-        mplew.writeShort(SendOpcode.REMOVE_SPECIAL_MAPOBJECT.getValue());
+        mplew.writeShort(SendOpcode.SUMMON_REMOVE.getValue());
         mplew.writeInt(summon.getOwner().getId());
         mplew.writeInt(summon.getObjectId());
         mplew.write(animated ? 4 : 1); // ?
@@ -1962,7 +2026,7 @@ public class MaplePacketCreator {
 
     public static byte[] moveSummon(int cid, int oid, Point startPos, List<LifeMovementFragment> moves) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.MOVE_SUMMON.getValue());
+        mplew.writeShort(SendOpcode.SUMMON_MOVE.getValue());
         mplew.writeInt(cid);
         mplew.writeInt(oid);
         mplew.writePos(startPos);
@@ -3495,7 +3559,7 @@ public class MaplePacketCreator {
 
     public static byte[] damageSummon(int cid, int summonSkillId, int damage, int unkByte, int monsterIdFrom) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.DAMAGE_SUMMON.getValue());
+        mplew.writeShort(SendOpcode.SUMMON_DAMAGE.getValue());
         mplew.writeInt(cid);
         mplew.writeInt(summonSkillId);
         mplew.write(unkByte);
@@ -4183,7 +4247,7 @@ public class MaplePacketCreator {
 
     public static byte[] movePet(int cid, int pid, byte slot, List<LifeMovementFragment> moves) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.MOVE_PET.getValue());
+        mplew.writeShort(SendOpcode.PET_MOVE.getValue());
         mplew.writeInt(cid);
         mplew.write(slot);
         mplew.writeInt(pid);
@@ -4727,14 +4791,14 @@ public class MaplePacketCreator {
 
     public static byte[] fredrickMessage(byte operation) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.FREDRICK_MESSAGE.getValue());
+        mplew.writeShort(SendOpcode.MERCH_ITEM_MSG.getValue());
         mplew.write(operation);
         return mplew.getPacket();
     }
 
     public static byte[] getFredrick(byte op) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.FREDRICK.getValue());
+        mplew.writeShort(SendOpcode.MERCH_ITEM_STORE.getValue());
         mplew.write(op);
 
         switch (op) {
@@ -4751,7 +4815,7 @@ public class MaplePacketCreator {
 
     public static byte[] getFredrick(MapleCharacter chr) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.FREDRICK.getValue());
+        mplew.writeShort(SendOpcode.MERCH_ITEM_STORE.getValue());
         mplew.write(0x23);
         mplew.writeInt(9030000); // Fredrick
         mplew.writeInt(32272); //id
@@ -5575,7 +5639,7 @@ public class MaplePacketCreator {
 
     public static byte[] disableUI(boolean enable) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.DISABLE_UI.getValue());
+        mplew.writeShort(SendOpcode.CYGNUS_INTRO_LOCK.getValue());
         mplew.write(enable ? 1 : 0);
         return mplew.getPacket();
     }
@@ -6508,7 +6572,7 @@ public class MaplePacketCreator {
 
     public static byte[] spawnGuide(boolean spawn) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(3);
-        mplew.writeShort(SendOpcode.SPAWN_GUIDE.getValue());
+        mplew.writeShort(SendOpcode.CYGNUS_INTRO_DISABLE_UI.getValue());
         if (spawn) {
             mplew.write(1);
         } else {
@@ -6517,18 +6581,18 @@ public class MaplePacketCreator {
         return mplew.getPacket();
     }
 
-    public static byte[] talkGuide(String talk) {
-        final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.TALK_GUIDE.getValue());
-        mplew.write(0);
-        mplew.writeMapleAsciiString(talk);
-        mplew.write(new byte[]{(byte) 0xC8, 0, 0, 0, (byte) 0xA0, (byte) 0x0F, 0, 0});
-        return mplew.getPacket();
-    }
-
+    /*
+     public static byte[] talkGuide(String talk) {
+     final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
+     mplew.writeShort(SendOpcode.TALK_GUIDE.getValue());
+     mplew.write(0);
+     mplew.writeMapleAsciiString(talk);
+     mplew.write(new byte[]{(byte) 0xC8, 0, 0, 0, (byte) 0xA0, (byte) 0x0F, 0, 0});
+     return mplew.getPacket();
+     }*/
     public static byte[] guideHint(int hint) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter(11);
-        mplew.writeShort(SendOpcode.TALK_GUIDE.getValue());
+        mplew.writeShort(SendOpcode.SUMMON_HINT_MSG.getValue());
         mplew.write(1);
         mplew.writeInt(hint);
         mplew.writeInt(7000);
@@ -6927,7 +6991,7 @@ public class MaplePacketCreator {
 
     public static byte[] spawnDragon(MapleDragon dragon) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.SPAWN_DRAGON.getValue());
+        mplew.writeShort(SendOpcode.DRAGON_SPAWN.getValue());
         mplew.writeInt(dragon.getOwner().getId());//objectid = owner id
         mplew.writeShort(dragon.getPosition().x);
         mplew.writeShort(0);
@@ -6941,7 +7005,7 @@ public class MaplePacketCreator {
 
     public static byte[] moveDragon(MapleDragon dragon, Point startPos, List<LifeMovementFragment> res) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.MOVE_DRAGON.getValue());
+        mplew.writeShort(SendOpcode.DRAGON_MOVE.getValue());
         mplew.writeInt(dragon.getOwner().getId());
         mplew.writePos(startPos);
         serializeMovementList(mplew, res);
@@ -6957,7 +7021,7 @@ public class MaplePacketCreator {
      */
     public static byte[] removeDragon(int chrid) {
         final MaplePacketLittleEndianWriter mplew = new MaplePacketLittleEndianWriter();
-        mplew.writeShort(SendOpcode.REMOVE_DRAGON.getValue());
+        mplew.writeShort(SendOpcode.DRAGON_REMOVE.getValue());
         mplew.writeInt(chrid);
         return mplew.getPacket();
     }

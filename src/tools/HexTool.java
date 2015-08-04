@@ -32,6 +32,19 @@ public class HexTool {
         return String.valueOf(retstr);
     }
 
+    public static final String toStringFromAscii(final byte[] bytes) {
+        char[] ret = new char[bytes.length];
+        for (int x = 0; x < bytes.length; x++) {
+            if (bytes[x] < 32 && bytes[x] >= 0) {
+                ret[x] = '.';
+            } else {
+                int chr = ((short) bytes[x]) & 0xFF;
+                ret[x] = (char) chr;
+            }
+        }
+        return String.valueOf(ret);
+    }
+    
     public static String toString(byte[] bytes) {
         StringBuilder hexed = new StringBuilder();
         for (int i = 0; i < bytes.length; i++) {

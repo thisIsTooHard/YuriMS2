@@ -25,6 +25,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import net.server.channel.handlers.*;
+import net.server.handlers.PacketErrorHandler;
 import net.server.handlers.CustomPacketHandler;
 import net.server.handlers.KeepAliveHandler;
 import net.server.handlers.LoginRequiringNoOpHandler;
@@ -99,6 +100,7 @@ public final class PacketProcessor {
 
         registerHandler(RecvOpcode.PONG, new KeepAliveHandler());
         registerHandler(RecvOpcode.CUSTOM_PACKET, new CustomPacketHandler());
+        registerHandler(RecvOpcode.PACKET_ERROE, new PacketErrorHandler());
         if (channel < 0) {//login
             registerHandler(RecvOpcode.ACCEPT_TOS, new AcceptToSHandler());
             registerHandler(RecvOpcode.AFTER_LOGIN, new AfterLoginHandler());

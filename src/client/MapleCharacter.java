@@ -5288,4 +5288,8 @@ public class MapleCharacter extends AbstractAnimatedMapleMapObject {
         }
         return sp;
     }
+    
+        public byte getSubcategory() {
+        return ((job.getId() >= 430 && job.getId() <= 434) ? (byte) 1 : (byte) 0); // Only dual blade can have the byte, if thief, just set as normal
+    }
 }

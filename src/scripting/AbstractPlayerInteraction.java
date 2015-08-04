@@ -552,10 +552,10 @@ public class AbstractPlayerInteraction {
 	public void dojoEnergy() {
 		c.announce(MaplePacketCreator.getEnergy("energy", getPlayer().getDojoEnergy()));
 	}
-
+        /*
 	public void talkGuide(String message) {
 		c.announce(MaplePacketCreator.talkGuide(message));
-	}
+	}*/
 
 	public void guideHint(int hint) {
 		c.announce(MaplePacketCreator.guideHint(hint));

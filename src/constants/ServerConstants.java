@@ -5,8 +5,8 @@ import java.util.Properties;
 
 public class ServerConstants {
 
-    public static short VERSION = 83;
-    public static String PATCH = "1";
+    public static short VERSION = 90;
+    public static String PATCH = "3";
     public static String[] WORLD_NAMES = {"Scania", "Bera", "Broa", "Windia", "Khaini", "Bellocan", "Mardia", "Kradia", "Yellonde", "Demethos", "Galicia", "El Nido", "Zenith", "Arcenia", "Kastia", "Judis", "Plana", "Kalluna", "Stius", "Croa", "Medere"};
     ;
 	// Login Configuration

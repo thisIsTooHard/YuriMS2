@@ -59,6 +59,14 @@ public class GameConstants {
     	return isAranSkills(skill) || isPqSkill(skill);
     }
 
+        public static boolean isEvan(final int job) {
+        return job == 2001 || (job >= 2200 && job <= 2218);
+    }
+
+    public static boolean isResist(final int job) {
+        return job >= 3000 && job <= 3512;
+    }
+    
     public static boolean isGMSkills(final int skill) {
     	return skill >= 9001000 && skill <= 9101008 || skill >= 8001000 && skill <= 8001001; 
     }

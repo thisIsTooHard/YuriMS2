@@ -21,7 +21,7 @@
  */
 package net;
 
-public enum SendOpcode {
+public enum SendOpcode_1 {
 
     LOGIN_STATUS(0x00),
     GUEST_ID_LOGIN(0x01),
@@ -337,7 +337,7 @@ public enum SendOpcode {
     VICIOUS_HAMMER(0x162);
     private int code = -2;
 
-    private SendOpcode(int code) {
+    private SendOpcode_1(int code) {
         this.code = code;
     }
 
